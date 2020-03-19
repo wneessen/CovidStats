@@ -4,8 +4,9 @@ use Mojo::Base 'Mojolicious';
 use Mojo::Util 'getopt';
 use v5.014;
 use Data::Dumper;
+use DateTime;
 use Scalar::Util qw(looks_like_number);
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 has description => 'Import CoVID-19 data into InfluxDB';
 has usage => sub { shift->extract_usage };
@@ -52,7 +53,32 @@ sub run {
             push(@dataPoints, 'cases_per_100000=' . $stateHash->{faelle_100000_EW});
         }
         
-        my $influxLine = 'covid19,location=' . $stateName . ',domain=by_state,stateid=' . $stateId
+        my $influxLine = 'covid19,state=' . $stateName . ',domain=by_state,stateid=' . $stateId
+            . ' ' . join(',', sort @dataPoints) . ' ' . $updateTime;
+        push(@influxDataLines, $influxLine);
+    }
+    
+    ## Fetch district data
+    foreach my $districtId (keys %{$self->app->config->{districtIds}}) {
+        my $districtName = $self->app->config->{districtIds}->{$districtId};
+        my $districtNameNoSpace = $districtName;
+        $districtNameNoSpace =~ s/\s/_/g;
+        $self->app->log->debug('Fetching CoVID-19 data for district "' . $districtName . '"');
+        my $districtData = $self->app->fetchDistrict($districtId);
+        my $districtHash = $districtData->{features}->[0]->{attributes};
+        if(!defined($districtData)) {
+            $self->app->log->error('No data returned while trying to fetch district data for ' . $districtName);
+            next;
+        }
+
+        my $updateTime = DateTime->now->epoch;
+
+        my @dataPoints;
+        if(defined($districtHash->{value})) {
+            push(@dataPoints, 'infected=' . $districtHash->{value});
+        }
+        
+        my $influxLine = 'covid19,district=' . $districtNameNoSpace . ',domain=by_district,districtid=' . $districtId
             . ' ' . join(',', sort @dataPoints) . ' ' . $updateTime;
         push(@influxDataLines, $influxLine);
     }

@@ -13,7 +13,7 @@ sub register {
     my ($self, $app, $conf) = @_;
     
     ## Initialize the helper
-    $app->helper(callInflux         => \&_callInflux);
+    $app->helper(callInflux => \&_callInflux);
 }
 # }}}
 

@@ -5,6 +5,7 @@ Import CoViD-19 stats for German states (and rural districts) into InfluxDB
 This script is written in Perl and is using Mojolicious as it's basic framework. Therfore you require at least:
 * Perl 5.14+
 * Mojolicious
+* DateTime
 
 As the data is stored in an InfluxDB, you of course also need a running InfluxDB instance that can be reached by this script.
 
