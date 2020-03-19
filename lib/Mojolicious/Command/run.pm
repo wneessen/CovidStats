@@ -35,13 +35,7 @@ sub run {
             next;
         }
 
-        my $updateTime = $stateHash->{Aktualisierung};
-        if(!defined($updateTime)) {
-            $self->app->log->error('No latest update timestamp found. Skipping.');
-            next;
-        }
-        $updateTime =~ s/^(\d{10}).*/$1/g;
-
+        my $updateTime = DateTime->now->epoch;
         my @dataPoints;
         if(defined($stateHash->{Fallzahl})) {
             push(@dataPoints, 'infected=' . $stateHash->{Fallzahl});
@@ -72,7 +66,6 @@ sub run {
         }
 
         my $updateTime = DateTime->now->epoch;
-
         my @dataPoints;
         if(defined($districtHash->{value})) {
             push(@dataPoints, 'infected=' . $districtHash->{value});
