@@ -1,4 +1,4 @@
-conf/CovidStatSecret.conf
+conf/CovidStatsSecret.conf
 log/*
 !log/.gitkeep
 .vscode/*
