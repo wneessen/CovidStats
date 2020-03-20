@@ -40,6 +40,30 @@ cd CovidStats
 /usr/bin/env perl script/covid_stats run -m development
 ```
 
+## What data points are available?
+The script is able to monitor the following data points by state:
+* Confirmed infections
+* Confirmed deaths
+* Confirmed cases per 100k residents
+
+The following data is available by district:
+* Confirmed infections
+  
+## What does it look like?
+Once the data is in your InfluxDB, you can use the built in Chronograf or 3rd party tools like Grafana to visualize the data. For all screenshots I used Grafana
+
+### Confirmed infections (by state)
+![Confirmed infections by state](assets/inf_by_state.png)
+
+### Confirmed deaths (by state)
+![Confirmed deaths by state](assets/deaths_by_state.png)
+
+### Confirmed cases per 100k residents (by state)
+![Confirmed cases per 100k residents by state](assets/inf_per_100k.png)
+
+### Confirmed infections (by district)
+![Confirmed infections by district](assets/inf_by_district.png)
+
 ## Disclaimer
 This script is based on the data from Robert-Koch-Institut (RKI). Even though developed at best knowledge and will, it is possible that this software will contain bugs and, despite best efforts, the developer claims no responsibility nor liable for the data provided by this script.
 
