@@ -32,12 +32,13 @@ sub _callInflux {
 
     ## Get all config settings first
     my $userAgent = $self->ua;
+    $userAgent->insecure(1);
     my $influxHost = $self->config->{InfluxDbServer};
     my $influxPort = $self->config->{InfluxDbPort};
     my $influxUser = url_escape $self->config->{influxDbUser};
     my $influxPass = url_escape $self->config->{influxDbPass};
     my $influxDbase = url_escape $self->config->{InfluxDbDatabase};
-    my $reqUrl = 'http://' . $influxHost . ':' . $influxPort . '/write?u=' . $influxUser . '&p=' . $influxPass . '&db=' . $influxDbase . '&precision=s';
+    my $reqUrl = 'https://' . $influxHost . ':' . $influxPort . '/influxdb/write?u=' . $influxUser . '&p=' . $influxPass . '&db=' . $influxDbase . '&precision=s';
 
     ## Start transaction
     my $transAct = $userAgent->build_tx(POST => $reqUrl => $postData); 
