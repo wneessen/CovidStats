@@ -80,6 +80,7 @@ sub run {
     
     ## Write data to InfluxDB
     if(!defined($dryRun)) {
+        $self->app->log->debug('Sending collected data to InfluxDB');
         my $writeData = $self->app->callInflux(join("\n", @influxDataLines));
         if(!defined($writeData)) {
             $self->app->log->error('Data not recorded in database due to an error');
