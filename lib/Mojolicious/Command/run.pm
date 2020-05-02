@@ -65,7 +65,9 @@ sub run {
             next;
         }
 
-        my $updateTime = DateTime->now->epoch;
+        my $dtObj = DateTime->now;
+        $dtObj->set_time_zone('UTC');
+        my $updateTime = $dtObj->epoch;
         my @dataPoints;
         if(defined($districtHash->{value})) {
             push(@dataPoints, 'infected=' . $districtHash->{value});
