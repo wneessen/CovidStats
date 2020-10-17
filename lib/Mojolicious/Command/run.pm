@@ -37,7 +37,7 @@ sub run {
             next;
         }
 
-        my $updateTime = DateTime->now->epoch;
+        my $updateTime = $stateHash->{Aktualisierung} / 1000;
         my @dataPoints;
         if(defined($stateHash->{Fallzahl})) {
             push(@dataPoints, 'infected=' . $stateHash->{Fallzahl});
@@ -47,6 +47,9 @@ sub run {
         }
         if(defined($stateHash->{faelle_100000_EW})) {
             push(@dataPoints, 'cases_per_100000=' . $stateHash->{faelle_100000_EW});
+        }
+        if(defined($stateHash->{cases7_bl_per_100k})) {
+            push(@dataPoints, 'cases7_bl_per_100k=' . $stateHash->{cases7_bl_per_100k});
         }
         
         my $influxLine = 'covid19,state=' . $stateName . ',domain=by_state,stateid=' . $stateId

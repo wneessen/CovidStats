@@ -34,7 +34,7 @@ sub _fetchState {
     ## Get all config settings first
     my $userAgent = $self->ua;
     my $apiHost = $self->config->{apiServer};
-    my $apiUrl = 'https://' . $apiHost . '/mOBPykOjAyBO2ZKk/arcgis/rest/services/Coronaf%C3%A4lle_in_den_Bundesl%C3%A4ndern/FeatureServer/0/query?f=json&where=OBJECTID_1%3D' . $stateId . '&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=faelle_100000_EW%20desc&resultOffset=0&resultRecordCount=50&cacheHint=true';
+    my $apiUrl = 'https://' . $apiHost . '/mOBPykOjAyBO2ZKk/arcgis/rest/services/Coronaf%C3%A4lle_in_den_Bundesl%C3%A4ndern/FeatureServer/0/query?f=json&where=OBJECTID_1%3D' . $stateId . '&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=Aktualisierung,Death,cases7_bl_per_100k,faelle_100000_EW,Fallzahl&orderByFields=faelle_100000_EW%20desc&resultOffset=0&resultRecordCount=50&cacheHint=true';
 
     ## Start transaction
     my $transAct = $userAgent->build_tx(GET => $apiUrl);
