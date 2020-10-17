@@ -5,8 +5,10 @@ use Mojo::Util 'getopt';
 use v5.014;
 use Data::Dumper;
 use DateTime;
+use DateTime::Format::DateParse;
+use Date::Parse;
 use Scalar::Util qw(looks_like_number);
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 has description => 'Import CoVID-19 data into InfluxDB';
 has usage => sub { shift->extract_usage };
@@ -65,12 +67,30 @@ sub run {
             next;
         }
 
-        my $dtObj = DateTime->now;
+        my $updateDate = $districtHash->{last_update};
+        my $dtObj;
+        if($updateDate =~ /(\d{1,2})\.(\d{1,2})\.(\d{4}), (\d{2}):(\d{2}) Uhr/) {
+            $dtObj = DateTime->new(
+                year      => $3,
+                month     => $2,
+                day       => $1,
+                hour      => $4,
+                minute    => $5,
+                second    => 0,
+                time_zone => 'Europe/Berlin',
+            );
+        }
         $dtObj->set_time_zone('UTC');
         my $updateTime = $dtObj->epoch;
         my @dataPoints;
-        if(defined($districtHash->{value})) {
-            push(@dataPoints, 'infected=' . $districtHash->{value});
+        if(defined($districtHash->{cases})) {
+            push(@dataPoints, 'cases=' . $districtHash->{cases});
+        }
+        if(defined($districtHash->{deaths})) {
+            push(@dataPoints, 'deaths=' . $districtHash->{deaths});
+        }
+        if(defined($districtHash->{cases7_per_100k})) {
+            push(@dataPoints, 'cases7_per_100k=' . $districtHash->{cases7_per_100k});
         }
         
         my $influxLine = 'covid19,district=' . $districtNameNoSpace . ',domain=by_district,districtid=' . $districtId

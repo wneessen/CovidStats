@@ -7,7 +7,7 @@ use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::JSON qw(decode_json);
 use Carp;
 use Data::Dumper;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 ## Register the plugin // register {{{
 sub register {
@@ -51,7 +51,7 @@ sub _fetchState {
 }
 # }}} 
 
-## Fetch the CoVID-19 district data from the API // _fetchDistrict() {{{
+## Fetch the CoVID-19 district from the API // _fetchDistrict() {{{
 ##  Requires:   districtId
 ##  Optional:   undef
 ##  onSuccess:  districtHash
@@ -66,7 +66,7 @@ sub _fetchDistrict {
     ## Get all config settings first
     my $userAgent = $self->ua;
     my $apiHost = $self->config->{apiServer};
-    my $apiUrl = 'https://' . $apiHost . '/mOBPykOjAyBO2ZKk/arcgis/rest/services/Kreisgrenzen_2018_mit_Einwohnerzahl/FeatureServer/0/query?f=json&where=OBJECTID%3D' . $districtId . '&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22Fallzahlen%22%2C%22outStatisticFieldName%22%3A%22value%22%7D%5D&cacheHint=true';
+    my $apiUrl = 'https://' . $apiHost . '/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=OBJECTID%20%3D%20%27' . $districtId . '%27&outFields=cases7_per_100k,cases,deaths,last_update&returnGeometry=false&outSR=4326&f=json';
 
     ## Start transaction
     my $transAct = $userAgent->build_tx(GET => $apiUrl);
