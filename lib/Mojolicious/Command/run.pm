@@ -5,8 +5,6 @@ use Mojo::Util 'getopt';
 use v5.014;
 use Data::Dumper;
 use DateTime;
-use DateTime::Format::DateParse;
-use Date::Parse;
 use Scalar::Util qw(looks_like_number);
 our $VERSION = '0.03';
 
