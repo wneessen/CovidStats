@@ -105,7 +105,7 @@ sub run {
         my $districtNameNoSpace = $districtName;
         $districtNameNoSpace =~ s/\s/_/g;
         $self->app->log->debug('Fetching Intensivbettenauslastung data for district "' . $districtName . '"');
-        my $districtData = $self->app->fetchIntensivbetten($districtId);
+        my $districtData = $self->app->fetchIntensivbetten($intensivId);
         my $districtHash = $districtData->{features}->[0]->{attributes};
         if(!defined($districtData)) {
             $self->app->log->error('No data returned while trying to fetch district data for ' . $districtName);
@@ -150,7 +150,7 @@ sub run {
             push(@dataPoints, 'faelle_covid_aktuell_beatmet=' . $districtHash->{faelle_covid_aktuell_beatmet});
         }
         
-        my $influxLine = 'covid19,district=' . $districtNameNoSpace . ',domain=intensivbetten,districtid=' . $districtId
+        my $influxLine = 'covid19,district=' . $districtNameNoSpace . ',domain=intensivbetten,districtid=' . $intensivId
             . ' ' . join(',', sort @dataPoints) . ' ' . $updateTime;
         push(@influxDataLines, $influxLine);
     }
