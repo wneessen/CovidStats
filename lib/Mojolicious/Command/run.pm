@@ -114,7 +114,7 @@ sub run {
 
         my $updateDate = $districtHash->{daten_stand};
         my $dtObj;
-        if($updateDate =~ /(\d{1,2})\.(\d{1,2})\.(\d{4}), (\d{2}):(\d{2}) Uhr/) {
+        if($updateDate =~ /(\d{1,2})\.(\d{1,2})\.(\d{4}) (\d{2}):(\d{2}) Uhr/) {
             $dtObj = DateTime->new(
                 year      => $3,
                 month     => $2,
