@@ -99,6 +99,62 @@ sub run {
         push(@influxDataLines, $influxLine);
     }
     
+    ## Fetch Intensivbetten data
+    foreach my $intensivId (keys %{$self->app->config->{intensivIds}}) {
+        my $districtName = $self->app->config->{intensivIds}->{$intensivId};
+        my $districtNameNoSpace = $districtName;
+        $districtNameNoSpace =~ s/\s/_/g;
+        $self->app->log->debug('Fetching Intensivbettenauslastung data for district "' . $districtName . '"');
+        my $districtData = $self->app->fetchIntensivbetten($districtId);
+        my $districtHash = $districtData->{features}->[0]->{attributes};
+        if(!defined($districtData)) {
+            $self->app->log->error('No data returned while trying to fetch district data for ' . $districtName);
+            next;
+        }
+
+        my $updateDate = $districtHash->{daten_stand};
+        my $dtObj;
+        if($updateDate =~ /(\d{1,2})\.(\d{1,2})\.(\d{4}), (\d{2}):(\d{2}) Uhr/) {
+            $dtObj = DateTime->new(
+                year      => $3,
+                month     => $2,
+                day       => $1,
+                hour      => $4,
+                minute    => $5,
+                second    => 0,
+                time_zone => 'Europe/Berlin',
+            );
+        }
+        $dtObj->set_time_zone('UTC');
+        my $updateTime = $dtObj->epoch;
+        my @dataPoints;
+        if(defined($districtHash->{anzahl_standorte})) {
+            push(@dataPoints, 'anzahl_standorte=' . $districtHash->{anzahl_standorte});
+        }
+        if(defined($districtHash->{anzahl_meldebereiche})) {
+            push(@dataPoints, 'anzahl_meldebereiche=' . $districtHash->{anzahl_meldebereiche});
+        }
+        if(defined($districtHash->{betten_frei})) {
+            push(@dataPoints, 'betten_frei=' . $districtHash->{betten_frei});
+        }
+        if(defined($districtHash->{betten_belegt})) {
+            push(@dataPoints, 'betten_belegt=' . $districtHash->{betten_belegt});
+        }
+        if(defined($districtHash->{betten_gesamt})) {
+            push(@dataPoints, 'betten_gesamt=' . $districtHash->{betten_gesamt});
+        }
+        if(defined($districtHash->{faelle_covid_aktuell})) {
+            push(@dataPoints, 'faelle_covid_aktuell=' . $districtHash->{faelle_covid_aktuell});
+        }
+        if(defined($districtHash->{faelle_covid_aktuell_beatmet})) {
+            push(@dataPoints, 'faelle_covid_aktuell_beatmet=' . $districtHash->{faelle_covid_aktuell_beatmet});
+        }
+        
+        my $influxLine = 'covid19,district=' . $districtNameNoSpace . ',domain=intensivbetten,districtid=' . $districtId
+            . ' ' . join(',', sort @dataPoints) . ' ' . $updateTime;
+        push(@influxDataLines, $influxLine);
+    }
+    
     ## Write data to InfluxDB
     if(!defined($dryRun)) {
         $self->app->log->debug('Sending collected data to InfluxDB');

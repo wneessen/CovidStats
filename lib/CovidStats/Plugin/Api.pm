@@ -7,7 +7,7 @@ use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::JSON qw(decode_json);
 use Carp;
 use Data::Dumper;
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 ## Register the plugin // register {{{
 sub register {
@@ -16,6 +16,7 @@ sub register {
     ## Initialize the helper
     $app->helper(fetchState     => \&_fetchState);
     $app->helper(fetchDistrict  => \&_fetchDistrict);
+    $app->helper(fetchIntensivbetten  => \&_fetchIntensivbetten);
 }
 # }}}
 
@@ -67,6 +68,38 @@ sub _fetchDistrict {
     my $userAgent = $self->ua;
     my $apiHost = $self->config->{apiServer};
     my $apiUrl = 'https://' . $apiHost . '/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=OBJECTID%20%3D%20%27' . $districtId . '%27&outFields=cases7_per_100k,cases,deaths,last_update&returnGeometry=false&outSR=4326&f=json';
+
+    ## Start transaction
+    my $transAct = $userAgent->build_tx(GET => $apiUrl);
+    $transAct = $userAgent->start($transAct);
+    if(!$transAct->error) {
+        my $stateHash = decode_json($transAct->result->body);
+        return $stateHash;
+    }
+    else {
+        my $txError = $transAct->error;
+        $self->app->log->fatal('Unable to fetch CoVID-19 data: ' . $txError->{message});
+        return undef;
+    }
+}
+# }}} 
+
+## Fetch the Intensivbettenauslastung // _fetchIntensivbetten() {{{
+##  Requires:   districtId
+##  Optional:   undef
+##  onSuccess:  districtHash
+##  onFailure:  undef
+sub _fetchIntensivbetten {
+    my ($self, $districtId) = @_;
+    if(!defined($districtId)) {
+        $self->app->log->error('Missing parameters. _fetchIntensivbetten required: districtId');
+        return undef;
+    }
+
+    ## Get all config settings first
+    my $userAgent = $self->ua;
+    my $apiHost = $self->config->{apiServer};
+    my $apiUrl = 'https://' . $apiHost . '/mOBPykOjAyBO2ZKk/arcgis/rest/services/DIVI_Intensivregister_Landkreise/FeatureServer/0/query?where=OBJECTID%20%3D%20%27' . $districtId . '%27&outFields=*&returnGeometry=false&outSR=4326&f=json';
 
     ## Start transaction
     my $transAct = $userAgent->build_tx(GET => $apiUrl);
