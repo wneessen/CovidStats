@@ -30,7 +30,7 @@ sub run {
         $self->app->log->debug('Fetching CoVID-19 data for state "' . $stateName . '"');
         my $stateData = $self->app->fetchState($stateId);
         my $stateHash = $stateData->{features}->[0]->{attributes};
-        if(!defined($stateData)) {
+        if(!defined($stateData) || !defined($stateHash)) {
             $self->app->log->error('No data returned while trying to fetch state data for ' . $stateName);
             next;
         }
